@@ -73,6 +73,30 @@ Override the host port with `QRFORGE_PORT`:
 QRFORGE_PORT=9000 docker compose up -d
 ```
 
+## CI/CD
+
+A single workflow (`.github/workflows/ci.yml`) runs on every push to `main`,
+every `v*` tag, and all pull requests. It lints, format-checks, typechecks,
+and tests the app, then builds the Docker image:
+
+- Pushes to `main` publish `ghcr.io/brocahontaz/qrforge:latest` plus `main`
+  and `sha-<hash>` tags.
+- `v*` tags additionally publish semver tags (`:1.2.3` and `:1.2`).
+- Pull requests build but do not push.
+
+Deployment is manual — the workflow only publishes the image.
+
+### Deploy on a host
+
+```sh
+docker compose -f deploy/compose.prod.yaml pull
+docker compose -f deploy/compose.prod.yaml up -d
+```
+
+Important: the first publish creates the GHCR package as **private**. For
+anonymous `docker pull` on the host, flip it to public once under repo →
+Packages → package settings, or `docker login ghcr.io` on the host.
+
 ## Stack
 
 Vite 7 + TypeScript + vanilla DOM, dark-first accessible UI, nginx static

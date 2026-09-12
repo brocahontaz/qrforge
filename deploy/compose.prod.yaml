@@ -1,0 +1,6 @@
+services:
+  qrforge:
+    image: ghcr.io/brocahontaz/qrforge:latest
+    ports:
+      - '${QRFORGE_PORT:-8080}:8080'
+    restart: unless-stopped
