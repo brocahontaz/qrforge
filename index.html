@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QRForge</title>
+    <meta
+      name="description"
+      content="Client-side QR code generator — everything runs in your browser."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23161c26'/><rect x='5' y='5' width='8' height='8' fill='%236ea8fe'/><rect x='19' y='5' width='8' height='8' fill='%236ea8fe'/><rect x='5' y='19' width='8' height='8' fill='%236ea8fe'/><rect x='20' y='20' width='4' height='4' fill='%236ea8fe'/></svg>"
+    />
+  </head>
+  <body>
+    <main>
+      <header class="app-header">
+        <h1>QRForge</h1>
+        <p class="tagline">Client-side QR generator — nothing leaves your browser.</p>
+      </header>
+
+      <div class="layout">
+        <section class="panel panel-content" aria-labelledby="content-heading">
+          <h2 id="content-heading">Content</h2>
+
+          <fieldset class="type-picker">
+            <legend class="visually-hidden">QR code type</legend>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="url" checked /><span>URL</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="text" /><span>Text</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="wifi" /><span>Wi-Fi</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="email" /><span>Email</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="phone" /><span>Phone</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="sms" /><span>SMS</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="qr-type" value="vcard" /><span>vCard</span>
+            </label>
+          </fieldset>
+
+          <button type="button" id="reset-btn" class="btn btn-ghost">Reset</button>
+
+          <form id="qr-form" novalidate>
+            <fieldset data-type="url" id="fields-url" class="type-fields">
+              <legend>URL</legend>
+              <div class="field">
+                <label for="url-input">URL</label>
+                <input
+                  id="url-input"
+                  name="url"
+                  type="url"
+                  placeholder="https://example.com"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-url-input"
+                />
+                <p class="field-error" id="error-url-input" hidden></p>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="text" id="fields-text" class="type-fields" hidden>
+              <legend>Text</legend>
+              <div class="field">
+                <label for="text-input">Text</label>
+                <textarea
+                  id="text-input"
+                  name="text"
+                  rows="3"
+                  placeholder="Any text to encode"
+                  aria-describedby="error-text-input"
+                ></textarea>
+                <p class="field-error" id="error-text-input" hidden></p>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="wifi" id="fields-wifi" class="type-fields" hidden>
+              <legend>Wi-Fi</legend>
+              <div class="field">
+                <label for="wifi-ssid">Network name (SSID)</label>
+                <input
+                  id="wifi-ssid"
+                  name="wifi-ssid"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-wifi-ssid"
+                />
+                <p class="field-error" id="error-wifi-ssid" hidden></p>
+              </div>
+              <div class="field">
+                <label for="wifi-password">Password</label>
+                <input
+                  id="wifi-password"
+                  name="wifi-password"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-wifi-password"
+                />
+                <p class="field-error" id="error-wifi-password" hidden></p>
+              </div>
+              <div class="field">
+                <label for="wifi-encryption">Encryption</label>
+                <select id="wifi-encryption" name="wifi-encryption">
+                  <option value="WPA" selected>WPA/WPA2/WPA3</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">None (open network)</option>
+                </select>
+              </div>
+              <div class="field field-check">
+                <input id="wifi-hidden" name="wifi-hidden" type="checkbox" />
+                <label for="wifi-hidden">Hidden network</label>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="email" id="fields-email" class="type-fields" hidden>
+              <legend>Email</legend>
+              <div class="field">
+                <label for="email-to">Address</label>
+                <input
+                  id="email-to"
+                  name="email-to"
+                  type="email"
+                  placeholder="ada@example.com"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-email-to"
+                />
+                <p class="field-error" id="error-email-to" hidden></p>
+              </div>
+              <div class="field">
+                <label for="email-subject">Subject (optional)</label>
+                <input
+                  id="email-subject"
+                  name="email-subject"
+                  type="text"
+                  autocomplete="off"
+                  aria-describedby="error-email-subject"
+                />
+                <p class="field-error" id="error-email-subject" hidden></p>
+              </div>
+              <div class="field">
+                <label for="email-body">Body (optional)</label>
+                <textarea
+                  id="email-body"
+                  name="email-body"
+                  rows="3"
+                  aria-describedby="error-email-body"
+                ></textarea>
+                <p class="field-error" id="error-email-body" hidden></p>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="phone" id="fields-phone" class="type-fields" hidden>
+              <legend>Phone</legend>
+              <div class="field">
+                <label for="phone-number">Number</label>
+                <input
+                  id="phone-number"
+                  name="phone-number"
+                  type="tel"
+                  placeholder="+1 555 123 4567"
+                  autocomplete="off"
+                  aria-describedby="error-phone-number"
+                />
+                <p class="field-error" id="error-phone-number" hidden></p>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="sms" id="fields-sms" class="type-fields" hidden>
+              <legend>SMS</legend>
+              <div class="field">
+                <label for="sms-number">Number</label>
+                <input
+                  id="sms-number"
+                  name="sms-number"
+                  type="tel"
+                  placeholder="+1 555 123 4567"
+                  autocomplete="off"
+                  aria-describedby="error-sms-number"
+                />
+                <p class="field-error" id="error-sms-number" hidden></p>
+              </div>
+              <div class="field">
+                <label for="sms-message">Message (optional)</label>
+                <textarea
+                  id="sms-message"
+                  name="sms-message"
+                  rows="3"
+                  aria-describedby="error-sms-message"
+                ></textarea>
+                <p class="field-error" id="error-sms-message" hidden></p>
+              </div>
+            </fieldset>
+
+            <fieldset data-type="vcard" id="fields-vcard" class="type-fields" hidden>
+              <legend>vCard</legend>
+              <div class="field">
+                <label for="vcard-fullname">Full name</label>
+                <input
+                  id="vcard-fullname"
+                  name="vcard-fullname"
+                  type="text"
+                  autocomplete="off"
+                  aria-describedby="error-vcard-fullname"
+                />
+                <p class="field-error" id="error-vcard-fullname" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-org">Organization (optional)</label>
+                <input
+                  id="vcard-org"
+                  name="vcard-org"
+                  type="text"
+                  autocomplete="off"
+                  aria-describedby="error-vcard-org"
+                />
+                <p class="field-error" id="error-vcard-org" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-title">Job title (optional)</label>
+                <input
+                  id="vcard-title"
+                  name="vcard-title"
+                  type="text"
+                  autocomplete="off"
+                  aria-describedby="error-vcard-title"
+                />
+                <p class="field-error" id="error-vcard-title" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-phone">Phone (optional)</label>
+                <input
+                  id="vcard-phone"
+                  name="vcard-phone"
+                  type="tel"
+                  placeholder="+1 555 123 4567"
+                  autocomplete="off"
+                  aria-describedby="error-vcard-phone"
+                />
+                <p class="field-error" id="error-vcard-phone" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-email">Email (optional)</label>
+                <input
+                  id="vcard-email"
+                  name="vcard-email"
+                  type="email"
+                  placeholder="ada@example.com"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-vcard-email"
+                />
+                <p class="field-error" id="error-vcard-email" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-website">Website (optional)</label>
+                <input
+                  id="vcard-website"
+                  name="vcard-website"
+                  type="url"
+                  placeholder="example.com"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="error-vcard-website"
+                />
+                <p class="field-error" id="error-vcard-website" hidden></p>
+              </div>
+              <div class="field">
+                <label for="vcard-address">Address (optional)</label>
+                <input
+                  id="vcard-address"
+                  name="vcard-address"
+                  type="text"
+                  autocomplete="off"
+                  aria-describedby="error-vcard-address"
+                />
+                <p class="field-error" id="error-vcard-address" hidden></p>
+              </div>
+            </fieldset>
+          </form>
+        </section>
+
+        <section class="panel panel-options" aria-labelledby="options-heading">
+          <h2 id="options-heading">Options</h2>
+          <fieldset class="options-fields">
+            <legend class="visually-hidden">QR code options</legend>
+            <div class="field">
+              <label for="opt-size">Size</label>
+              <select id="opt-size" name="opt-size">
+                <option value="256">256 px</option>
+                <option value="512" selected>512 px</option>
+                <option value="1024">1024 px</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="opt-ecc">Error correction</label>
+              <select id="opt-ecc" name="opt-ecc">
+                <option value="L">L — 7% recoverable</option>
+                <option value="M" selected>M — 15% recoverable</option>
+                <option value="Q">Q — 25% recoverable</option>
+                <option value="H">H — 30% recoverable</option>
+              </select>
+              <p class="field-hint">Higher = more robust, denser code.</p>
+            </div>
+            <div class="field">
+              <label for="opt-margin">Margin (modules)</label>
+              <input
+                id="opt-margin"
+                name="opt-margin"
+                type="number"
+                min="0"
+                max="10"
+                step="1"
+                value="4"
+              />
+              <p class="field-hint">Quiet zone around the code, 0–10.</p>
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="panel panel-preview" aria-labelledby="preview-heading">
+          <h2 id="preview-heading">Preview</h2>
+          <canvas id="qr-canvas" width="512" height="512" aria-label="QR code preview"></canvas>
+          <p class="status" id="status" role="status" aria-live="polite">
+            Enter content to generate a QR code
+          </p>
+          <div class="actions">
+            <button type="button" id="copy-btn" class="btn" disabled>Copy image</button>
+            <button type="button" id="png-btn" class="btn" disabled>Download PNG</button>
+            <button type="button" id="svg-btn" class="btn" disabled>Download SVG</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="app-footer">
+        <p>Generated entirely in your browser — no accounts, no analytics, no history.</p>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
